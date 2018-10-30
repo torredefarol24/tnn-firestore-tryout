@@ -12,13 +12,18 @@
   <script src="appKeys.js"></script>
 </head>
 <body>
-  <h1>Cloud Cafe</h1>
-  <div class="content">
-    <form id='add-cafe-form'>
-      <ul id='cafe-list'>
-
-      </ul>
+  <h1>Branches</h1>
+  <div class="container">
+    <form id='add-branch-form'>
+      <input type='text' name='name' placeholder="Branch Name" class='form-control' />
+      <input type='text' name='city' placeholder="Branch City" class='form-control' />
+      <button type='submit' class=' btn btn-submit'>Submit</button>
     </form>
+
+    <h3>Current Branches</h3>
+    <ul id='branch-list'>
+    </ul>
+    
   </div>
 
   <script src='firebase-setup.js'></script>
