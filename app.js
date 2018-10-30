@@ -1,7 +1,21 @@
 const branchList = document.querySelector("#branch-list");
 const addBranchForm = document.querySelector("#add-branch-form");
+const searchBranchInput = document.querySelector("#branchNameSearch");
+const branchSearchResults = document.querySelector("#branch-search-results");
 
-function renderBranchElem(doc, docId){
+searchBranchInput.addEventListener("keyup", (e) => searchBranches(e));
+
+async function searchBranches(e){
+  let branchName = e.target.value;
+  let results = await firebaseDB.collection(AppKeys.dbCollectionName).where('name' , '==' , branchName).get();
+ 
+  let branchDocs = results.docs;
+
+  branchDocs.forEach( doc => renderBranchElem(doc.data() , doc.id, renderInResults = true) );
+}
+
+
+function renderBranchElem(doc, docId, renderInResults=false){
   let liElem = document.createElement("li");
   let city = document.createElement("span");
   let name = document.createElement("span");
@@ -26,7 +40,7 @@ function renderBranchElem(doc, docId){
 
   liElem.appendChild(delBtn);
 
-  branchList.appendChild(liElem);
+  renderInResults ? branchSearchResults.appendChild(liElem) : branchList.appendChild(liElem);
 }
 
 
@@ -63,4 +77,20 @@ let getAllBranches = async function(){
   branchDocs.forEach( doc => renderBranchElem(doc.data() , doc.id) );
 }
 
-getAllBranches();
+// getAllBranches();
+
+let getAllBrancesRealTime = function(){
+  var branches = firebaseDB.collection(AppKeys.dbCollectionName).orderBy("name").onSnapshot( (snapshot) => {
+    let changes = snapshot.docChanges();
+    changes.forEach( change => {
+      if (change.type == 'added'){
+        renderBranchElem(change.doc.data(), change.doc.id)
+      } else if (change.type == 'removed'){
+        let liElemToRemove = branchList.querySelector("[data-id=" + change.doc.id + "]");
+        liElemToRemove.remove();
+      }
+    })
+  })
+}
+
+getAllBrancesRealTime()
